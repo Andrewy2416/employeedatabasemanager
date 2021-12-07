@@ -93,3 +93,75 @@ function viewAllEmployees() {
         prompt();
     });
 }
+
+function updateEmployeeRole() {
+
+    let query = `SELECT employee.id, CONCAT(employee.first_name, " ", employee.last_name) AS name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, " ", manager.last_name) AS manager
+        FROM employee
+        LEFT JOIN role
+        ON employee.role_id = role.id
+        LEFT JOIN department
+        ON department.id = role.department_id
+        LEFT JOIN employee manager
+        ON manager.id = employee.manager_id`;
+
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+
+        let employee = res.map(function (obj) {
+            return `Name: ${obj.name} ID: ${obj.id}`;
+        });
+
+        selectRole(employee);
+    });
+
+}
+
+function selectRole(employee) {
+
+    let query = `SELECT role.id, role.title, role.salary FROM role`;
+
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        let role = res.map(function (obj) {
+            return `Role: ${obj.title} Salary: ${obj.salary} ID: ${obj.id}`;
+        });
+
+        changeEmployeeRole(employee, role);
+    });
+}
+
+function changeEmployeeRole(employee, role) {
+
+    inquirer
+        .prompt([
+            {
+                type: "list",
+                message: "Select the employee whose role you wish to update:",
+                name: "employeeSelect",
+                choices: employee
+            },
+            {
+                type: "list",
+                message: "Select the new role to apply:",
+                name: "roleSelect",
+                choices: role
+            }
+        ])
+
+        .then(answers => {
+
+            let chosenRole = answers.roleSelect.replace(/^([^:]+\:){3}/, '').trim();
+            let chosenEmployee = answers.employeeSelect.replace(/^([^:]+\:){2}/, '').trim();
+
+            console.log(chosenRole);
+            console.log(chosenEmployee);
+
+            let query = `UPDATE employee SET role_id = ? WHERE id = ?`;
+            connection.query(query, [chosenRole, chosenEmployee], (err, res) => {
+                if (err) throw err;
+                prompt();
+            });
+        });
+
+}
