@@ -16,5 +16,10 @@
   "bugs": {
     "url": "https://github.com/Andrewy2416/employeetracker/issues"
   },
-  "homepage": "https://github.com/Andrewy2416/employeetracker#readme"
+  "homepage": "https://github.com/Andrewy2416/employeetracker#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^8.2.0",
+    "mysql2": "^2.3.3"
+  }
 }
