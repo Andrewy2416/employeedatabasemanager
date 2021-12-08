@@ -165,3 +165,102 @@ function changeEmployeeRole(employee, role) {
         });
 
 }
+
+
+function addNewEmployee() {
+
+    let query = `SELECT role.id, role.title, role.salary FROM role`;
+
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        let role = res.map(function (obj) {
+            return `Role: ${obj.title} Salary: ${obj.salary} ID: ${obj.id}`;
+        });
+
+        newEmployeeWithRole(role);
+    });
+}
+
+function newEmployeeWithRole(role) {
+
+    inquirer
+        .prompt([
+            {
+                type: "input",
+                name: "firstName",
+                message: "Enter the employee's first name:"
+            },
+            {
+                type: "input",
+                name: "lastName",
+                message: "Enter the employee's last name:"
+            },
+            {
+                type: "list",
+                name: "roleSelect",
+                message: "Select the employee's role:",
+                choices: role
+            }
+        ])
+
+        .then((answers) => {
+
+            let chosenRole = answers.roleSelect.replace(/^([^:]+\:){3}/, '').trim();
+
+            let query = `INSERT INTO employee SET ?`
+            connection.query(query, {
+                first_name: answers.firstName,
+                last_name: answers.lastName,
+                role_id: chosenRole
+            }, (err, res) => {
+                if (err) throw err;
+                prompt();
+            });
+        });
+}
+
+function removeEmployee() {
+
+    let query = `SELECT employee.id, CONCAT(employee.first_name, " ", employee.last_name) AS name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, " ", manager.last_name) AS manager
+    FROM employee
+    LEFT JOIN role
+    ON employee.role_id = role.id
+    LEFT JOIN department
+    ON department.id = role.department_id
+    LEFT JOIN employee manager
+    ON manager.id = employee.manager_id`;
+
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+
+        let employee = res.map(function (obj) {
+            return `Name: ${obj.name} ID: ${obj.id}`;
+        });
+
+        removeSelectedEmployee(employee);
+    });
+
+}
+
+function removeSelectedEmployee(employee) {
+
+    inquirer
+        .prompt([
+            {
+                type: "list",
+                name: "employeeSelect",
+                message: "Select the employee you wish to remove:",
+                choices: employee
+            }
+        ])
+
+        .then((answers) => {
+
+            let chosenEmployee = answers.employeeSelect.replace(/^([^:]+\:){2}/, '').trim();
+            let query = `DELETE FROM employee WHERE ?`;
+            connection.query(query, { id: chosenEmployee }, (err, res) => {
+                if (err) throw err;
+                prompt();
+            });
+        });
+}
