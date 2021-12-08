@@ -2,6 +2,7 @@ const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const table = require("console.table");
 const util = require('util');
+const { connect } = require('http2');
 
 const connection = mysql.createConnection({
 
@@ -263,4 +264,105 @@ function removeSelectedEmployee(employee) {
                 prompt();
             });
         });
+}
+
+function viewAllDepartments() {
+
+    connection.query("SELECT * FROM department", (err, res) => {
+        if (err) throw err;
+        console.table(res)
+        prompt();
+    });
+
+}
+
+function addNewDepartment() {
+
+    inquirer
+        .prompt([
+            {
+                type: "input",
+                name: "departmentName",
+                message: "Enter the name of the new department:",
+            }
+        ])
+
+        .then((answers) => {
+
+            connection.query("INSERT INTO department SET ?", { name: answers.departmentName }, (err, res) => {
+                if (err) throw err;
+                prompt();
+            });
+        });
+}
+
+function viewAllRoles() {
+
+    connection.query("SELECT * FROM role", (err, res) => {
+        if (err) throw err;
+        console.table(res)
+        prompt();
+    });
+
+}
+
+
+function addNewRole() {
+
+    connection.query("SELECT * FROM department", (err, res) => {
+        if (err) throw err;
+        addRoleDetails(res);
+    });
+
+}
+
+function addRoleDetails(departments) {
+
+    inquirer
+        .prompt([
+            {
+                type: "input",
+                name: "roleName",
+                message: "Enter the title of the new role:",
+            },
+            {
+                type: "number",
+                name: "roleSalary",
+                message: "Enter the salary for this role:"
+            },
+            {
+                type: "list",
+                name: "departmentID",
+                message: "Select the department for this role:",
+                choices() {
+                    return departments.map(({ id, name }) => {
+                        return {
+                            name: name, value: id
+                        };
+                    });
+                }
+            }
+        ])
+
+        .then((answers) => {
+
+            // console.log(answers.departmentID);
+
+            connection.query("INSERT INTO role SET ?", {
+
+                title: answers.roleName,
+                salary: answers.roleSalary,
+                department_id: answers.departmentID
+
+            }, (err, res) => {
+                if (err) throw err;
+                prompt();
+            });
+        });
+}
+
+function exit() {
+
+    connection.end();
+
 }
