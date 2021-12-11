@@ -34,3 +34,4 @@ CREATE TABLE employee (
 PRIMARY KEY (id),
 FOREIGN KEY (role_id) REFERENCES role(id)
 );
+/* SQL file that creates table to be seeded

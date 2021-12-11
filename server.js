@@ -1,9 +1,10 @@
+//global var to pull installed modules
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const table = require("console.table");
 const util = require('util');
 const { connect } = require('http2');
-
+//connecting to mysql and creating a local host
 const connection = mysql.createConnection({
 
     host: 'localhost',
@@ -18,6 +19,7 @@ connection.connect((err) => {
     prompt();
 });
 
+//inquirer prompt
 function prompt() {
 
     inquirer
@@ -42,7 +44,7 @@ function prompt() {
 
         .then(answers => {
 
-            //how to get index from choices array?
+            //linking commands to functions
             switch (answers.selection) {
 
                 case "View all employees": viewAllEmployees();
@@ -75,6 +77,7 @@ function prompt() {
         });
 };
 
+
 function viewAllEmployees() {
 
     let query = `SELECT employee.id, CONCAT(employee.first_name, " ", employee.last_name) AS name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
@@ -94,6 +97,7 @@ function viewAllEmployees() {
         prompt();
     });
 }
+
 
 function updateEmployeeRole() {
 
@@ -151,7 +155,7 @@ function changeEmployeeRole(employee, role) {
         ])
 
         .then(answers => {
-
+            //single string
             let chosenRole = answers.roleSelect.replace(/^([^:]+\:){3}/, '').trim();
             let chosenEmployee = answers.employeeSelect.replace(/^([^:]+\:){2}/, '').trim();
 
@@ -346,7 +350,6 @@ function addRoleDetails(departments) {
 
         .then((answers) => {
 
-            // console.log(answers.departmentID);
 
             connection.query("INSERT INTO role SET ?", {
 

@@ -25,3 +25,5 @@ VALUES
 ("Cyrus", "Duck", 6, 6),
 ("Dakota", "Simpson", 5, null),
 ("Chris", "Man", 7, 1);
+
+/* data that goes into the schema.SQL
